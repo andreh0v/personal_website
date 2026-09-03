@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03T17:57:32.677394+00:00",
+  "generated_at": "2026-09-03T20:15:34.595672+00:00",
   "composition": [
     {
       "label": "KLP AksjeGlobal Indeks P",
@@ -52,7 +52,7 @@
     },
     {
       "label": "Amazon.com",
-      "pct": 7.13,
+      "pct": 7.14,
       "kind": "exchange_traded"
     },
     {
@@ -92,7 +92,7 @@
     },
     {
       "label": "Mastercard",
-      "pct": 1.87,
+      "pct": 1.86,
       "kind": "exchange_traded"
     },
     {
@@ -111,7 +111,7 @@
       "name": "KLP AksjeGlobal Indeks P",
       "type": "manual",
       "account": "ASK",
-      "pct_of_portfolio": 20.63,
+      "pct_of_portfolio": 20.62,
       "unrealized_gain_pct": 2.78,
       "flagged_manual": true
     },
@@ -129,8 +129,8 @@
       "name": "Amazon.com",
       "type": "exchange_traded",
       "account": "Aksje og fondskonto",
-      "pct_of_portfolio": 9.35,
-      "unrealized_gain_pct": 9.91,
+      "pct_of_portfolio": 9.37,
+      "unrealized_gain_pct": 10.23,
       "flagged_manual": false
     },
     {
@@ -148,7 +148,7 @@
       "type": "exchange_traded",
       "account": "Aksje og fondskonto",
       "pct_of_portfolio": 5.27,
-      "unrealized_gain_pct": 11.92,
+      "unrealized_gain_pct": 12.02,
       "flagged_manual": false
     },
     {
@@ -157,7 +157,7 @@
       "type": "exchange_traded",
       "account": "Aksje og fondskonto",
       "pct_of_portfolio": 5.25,
-      "unrealized_gain_pct": 98.69,
+      "unrealized_gain_pct": 98.48,
       "flagged_manual": false
     },
     {
@@ -183,7 +183,7 @@
       "name": "KLP AksjeEuropa Indeks N",
       "type": "fund",
       "account": "ASK",
-      "pct_of_portfolio": 3.45,
+      "pct_of_portfolio": 3.44,
       "unrealized_gain_pct": 13.76,
       "flagged_manual": true
     },
@@ -201,8 +201,8 @@
       "name": "Microsoft",
       "type": "exchange_traded",
       "account": "Aksje og fondskonto",
-      "pct_of_portfolio": 2.85,
-      "unrealized_gain_pct": 21.46,
+      "pct_of_portfolio": 2.84,
+      "unrealized_gain_pct": 21.23,
       "flagged_manual": false
     },
     {
@@ -211,7 +211,7 @@
       "type": "exchange_traded",
       "account": "Aksje og fondskonto",
       "pct_of_portfolio": 2.45,
-      "unrealized_gain_pct": 4.99,
+      "unrealized_gain_pct": 4.92,
       "flagged_manual": false
     },
     {
@@ -219,7 +219,7 @@
       "name": "Fondsfinans High Yield B",
       "type": "fund",
       "account": "Fondskonto",
-      "pct_of_portfolio": 2.3,
+      "pct_of_portfolio": 2.29,
       "unrealized_gain_pct": -3.22,
       "flagged_manual": true
     },
@@ -440,5 +440,5 @@
       }
     ]
   },
-  "blended_unrealized_return_pct": 16.6
+  "blended_unrealized_return_pct": 16.62
 }
