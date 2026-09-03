@@ -35,13 +35,19 @@ BSU_MAX_DEPOSIT_NOK = 27_500
 BSU_MAX_DEDUCTION_NOK = 2_750
 BSU_MAX_BALANCE_NOK = 300_000
 
-# Holdings never shown or counted, at the owner's request.
-EXCLUDED_TICKERS = {"ASML.AS", "ASML"}
+# Excluded from the realized-return-to-date list only (a closed, unrelated position
+# from years ago); the open ASML.AS holding is otherwise shown normally.
+EXCLUDED_FROM_REALIZED = {"ASML.AS", "ASML"}
 
 # Below this share of the (investment-only) portfolio, a holding is folded into a
 # group rather than listed by name. Funds group into a named theme; everything
-# else groups into a generic "other holdings" bucket.
+# else (stocks) groups into a generic "other stocks" bucket.
 GROUPING_THRESHOLD_PCT = 2.0
+
+# Categories whose members are always merged into one line in the composition
+# view, regardless of individual size -- these are treated as a single asset
+# class rather than distinct holdings.
+ALWAYS_GROUP_CATEGORIES = {"High yield funds"}
 
 FUND_CATEGORY = {
     "NO0013023242": "Dividend funds",   # Fondsfinans Norden Utbytte B
@@ -337,7 +343,10 @@ def build_composition(holdings_raw, total_market_value_nok, cash_rows):
         # use the investment-only threshold for the grouping decision, matching
         # what a reader would expect "under 2% of the portfolio" to mean
         pct_of_investments = (value / total_market_value_nok * 100) if total_market_value_nok else 0
-        if pct_of_investments >= GROUPING_THRESHOLD_PCT:
+        if category in ALWAYS_GROUP_CATEGORIES:
+            grouped_fund[category][0] += pct
+            grouped_fund[category][1].append(h["name"])
+        elif pct_of_investments >= GROUPING_THRESHOLD_PCT:
             individual.append({"label": h["name"], "pct": round(pct, 2), "kind": h["type"]})
         elif category:
             grouped_fund[category][0] += pct
@@ -348,13 +357,13 @@ def build_composition(holdings_raw, total_market_value_nok, cash_rows):
 
     composition = sorted(individual, key=lambda h: h["pct"], reverse=True)
     for category, (pct, members) in grouped_fund.items():
+        label = category if category in ALWAYS_GROUP_CATEGORIES else f"{category} (each under {GROUPING_THRESHOLD_PCT:g}%)"
         composition.append({
-            "label": f"{category} (each under {GROUPING_THRESHOLD_PCT:g}%)",
-            "pct": round(pct, 2), "kind": "fund_group", "members": sorted(members),
+            "label": label, "pct": round(pct, 2), "kind": "fund_group", "members": sorted(members),
         })
     if grouped_other[1]:
         composition.append({
-            "label": f"Other holdings (each under {GROUPING_THRESHOLD_PCT:g}%)",
+            "label": f"Other stocks (each under {GROUPING_THRESHOLD_PCT:g}%)",
             "pct": round(grouped_other[0], 2), "kind": "other_group",
             "members": sorted(grouped_other[1]),
         })
@@ -379,7 +388,6 @@ def main():
 
     raw_holdings = [price_position_raw(key, pos) for key, pos in positions.items()]
     raw_holdings.extend(load_manual_holdings_raw(DATA_DIR / "holdings_manual.csv"))
-    raw_holdings = [h for h in raw_holdings if h["ticker"] not in EXCLUDED_TICKERS]
 
     total_market_value_nok = sum(h["market_value_nok"] or 0 for h in raw_holdings)
     total_cost_basis_nok = sum(h["cost_basis_nok"] or 0 for h in raw_holdings if h["cost_basis_nok"])
@@ -413,7 +421,7 @@ def main():
     for ticker, cost in sorted(realized_cost_by_ticker.items(),
                                 key=lambda kv: realized_gain_by_ticker.get(kv[0], 0) / kv[1] if kv[1] else 0,
                                 reverse=True):
-        if ticker in EXCLUDED_TICKERS or is_fund_by_ticker.get(ticker):
+        if ticker in EXCLUDED_FROM_REALIZED or is_fund_by_ticker.get(ticker):
             continue
         gain = realized_gain_by_ticker.get(ticker, 0)
         if cost:
