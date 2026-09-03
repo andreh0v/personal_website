@@ -27,6 +27,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/history.csv site/data/portfolio.json site/data/history.json
+          git add data/history.csv docs/data/portfolio.json docs/data/history.json
           git diff --cached --quiet || git commit -m "Update portfolio data"
           git push

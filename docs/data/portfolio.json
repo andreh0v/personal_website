@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-03T16:42:44.357063+00:00",
+  "generated_at": "2026-09-03T17:07:51.292114+00:00",
   "currency": "NOK",
   "holdings": [
     {
@@ -39,11 +39,11 @@
       "type": "exchange_traded",
       "quantity": 26.0,
       "cost_basis_nok": 56816.25,
-      "market_value_nok": 62609.99,
-      "unrealized_gain_nok": 5793.74,
-      "unrealized_gain_pct": 10.2,
+      "market_value_nok": 62503.56,
+      "unrealized_gain_nok": 5687.31,
+      "unrealized_gain_pct": 10.01,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.304335+00:00",
+      "price_as_of": "2026-09-03T17:07:48.359827+00:00",
       "account": "Aksje og fondskonto",
       "flagged_manual": false
     },
@@ -58,7 +58,7 @@
       "unrealized_gain_nok": 23162.53,
       "unrealized_gain_pct": 100.78,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.700323+00:00",
+      "price_as_of": "2026-09-03T17:07:48.819249+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -69,11 +69,11 @@
       "type": "exchange_traded",
       "quantity": 10.0,
       "cost_basis_nok": 31456.05,
-      "market_value_nok": 35160.54,
-      "unrealized_gain_nok": 3704.49,
-      "unrealized_gain_pct": 11.78,
+      "market_value_nok": 35125.19,
+      "unrealized_gain_nok": 3669.14,
+      "unrealized_gain_pct": 11.66,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.004972+00:00",
+      "price_as_of": "2026-09-03T17:07:48.149383+00:00",
       "account": "Aksje og fondskonto",
       "flagged_manual": false
     },
@@ -84,11 +84,11 @@
       "type": "exchange_traded",
       "quantity": 11.0,
       "cost_basis_nok": 17659.09,
-      "market_value_nok": 34972.38,
-      "unrealized_gain_nok": 17313.29,
-      "unrealized_gain_pct": 98.04,
+      "market_value_nok": 34973.91,
+      "unrealized_gain_nok": 17314.82,
+      "unrealized_gain_pct": 98.05,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:40.812871+00:00",
+      "price_as_of": "2026-09-03T17:07:47.975420+00:00",
       "account": "Aksje og fondskonto",
       "flagged_manual": false
     },
@@ -159,11 +159,11 @@
       "type": "exchange_traded",
       "quantity": 4.0,
       "cost_basis_nok": 15658.91,
-      "market_value_nok": 19065.14,
-      "unrealized_gain_nok": 3406.23,
-      "unrealized_gain_pct": 21.75,
+      "market_value_nok": 19007.34,
+      "unrealized_gain_nok": 3348.43,
+      "unrealized_gain_pct": 21.38,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:39.972862+00:00",
+      "price_as_of": "2026-09-03T17:07:47.265269+00:00",
       "account": "Aksje og fondskonto",
       "flagged_manual": false
     },
@@ -174,11 +174,11 @@
       "type": "exchange_traded",
       "quantity": 3.0,
       "cost_basis_nok": 15581.9,
-      "market_value_nok": 16331.62,
-      "unrealized_gain_nok": 749.72,
-      "unrealized_gain_pct": 4.81,
+      "market_value_nok": 16314.32,
+      "unrealized_gain_nok": 732.42,
+      "unrealized_gain_pct": 4.7,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:44.048410+00:00",
+      "price_as_of": "2026-09-03T17:07:51.014092+00:00",
       "account": "Aksje og fondskonto",
       "flagged_manual": false
     },
@@ -223,7 +223,7 @@
       "unrealized_gain_nok": 4012.77,
       "unrealized_gain_pct": 50.47,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.414547+00:00",
+      "price_as_of": "2026-09-03T17:07:48.470810+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -238,7 +238,7 @@
       "unrealized_gain_nok": -80.76,
       "unrealized_gain_pct": -0.7,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:43.443293+00:00",
+      "price_as_of": "2026-09-03T17:07:50.503818+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -253,7 +253,7 @@
       "unrealized_gain_nok": -1327.27,
       "unrealized_gain_pct": -11.38,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:43.741090+00:00",
+      "price_as_of": "2026-09-03T17:07:50.769208+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -268,7 +268,7 @@
       "unrealized_gain_nok": -75.42,
       "unrealized_gain_pct": -0.81,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.562350+00:00",
+      "price_as_of": "2026-09-03T17:07:48.673227+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -283,7 +283,7 @@
       "unrealized_gain_nok": 398.74,
       "unrealized_gain_pct": 6.41,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:38.948632+00:00",
+      "price_as_of": "2026-09-03T17:07:45.828734+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -298,7 +298,7 @@
       "unrealized_gain_nok": 595.29,
       "unrealized_gain_pct": 11.57,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:44.258020+00:00",
+      "price_as_of": "2026-09-03T17:07:51.138622+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -358,7 +358,7 @@
       "unrealized_gain_nok": -2968.58,
       "unrealized_gain_pct": -43.07,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:39.095651+00:00",
+      "price_as_of": "2026-09-03T17:07:46.054654+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -373,7 +373,7 @@
       "unrealized_gain_nok": 1709.76,
       "unrealized_gain_pct": 114.12,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:43.633270+00:00",
+      "price_as_of": "2026-09-03T17:07:50.628708+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -388,7 +388,7 @@
       "unrealized_gain_nok": 485.14,
       "unrealized_gain_pct": 33.55,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:42.585011+00:00",
+      "price_as_of": "2026-09-03T17:07:49.571066+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -403,7 +403,7 @@
       "unrealized_gain_nok": 312.07,
       "unrealized_gain_pct": 20.46,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:41.121863+00:00",
+      "price_as_of": "2026-09-03T17:07:48.266550+00:00",
       "account": "ASK",
       "flagged_manual": false
     },
@@ -418,7 +418,7 @@
       "unrealized_gain_nok": 107.8,
       "unrealized_gain_pct": 16.19,
       "price_source": "live",
-      "price_as_of": "2026-09-03T16:42:43.936999+00:00",
+      "price_as_of": "2026-09-03T17:07:50.881447+00:00",
       "account": "ASK",
       "flagged_manual": false
     }
@@ -533,8 +533,8 @@
     ]
   },
   "totals": {
-    "market_value_nok": 667968.58,
+    "market_value_nok": 667753.23,
     "cash_nok": 208508.0,
-    "total_portfolio_value_nok": 876476.58
+    "total_portfolio_value_nok": 876261.23
   }
 }

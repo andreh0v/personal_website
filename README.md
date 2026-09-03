@@ -9,10 +9,10 @@ Personal investment, academics, and experience site, published via GitHub Pages.
   without a reliable live price), `grades.csv`, `experience.md`, and `history.csv`
   (appended daily with the total portfolio value).
 - `scripts/build_portfolio.py` — reads `data/`, fetches live prices (yfinance) and FX
-  rates, and writes `site/data/portfolio.json` + `site/data/history.json`. Also copies
-  `grades.csv`/`experience.md` into `site/data/` so GitHub Pages can serve them
+  rates, and writes `docs/data/portfolio.json` + `docs/data/history.json`. Also copies
+  `grades.csv`/`experience.md` into `docs/data/` so GitHub Pages can serve them
   regardless of which folder is configured as the Pages source.
-- `site/` — the static frontend (vanilla HTML/CSS/JS + Chart.js, no build step).
+- `docs/` — the static frontend (vanilla HTML/CSS/JS + Chart.js, no build step).
 - `.github/workflows/update-portfolio.yml` — runs the build script on weekdays after
   market close and commits the refreshed data back to the repo.
 
@@ -21,7 +21,7 @@ Personal investment, academics, and experience site, published via GitHub Pages.
 ```bash
 pip install -r scripts/requirements.txt
 python scripts/build_portfolio.py
-python -m http.server --directory site 8000
+python -m http.server --directory docs 8000
 ```
 
 Then open `http://localhost:8000`.
@@ -38,4 +38,4 @@ Then open `http://localhost:8000`.
 - The BSU tax-benefit line is informational only and is never added to portfolio
   market value — it depends on the calendar year's deposit amount
   (`contributions_this_year` in `cash.csv`), not the account balance.
-- GitHub Pages: set the Pages source to the `site/` folder (Settings → Pages).
+- GitHub Pages: set the Pages source to the `docs/` folder (Settings → Pages).

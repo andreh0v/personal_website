@@ -1,5 +1,5 @@
 """
-Builds site/data/portfolio.json and site/data/history.json from the CSV data files.
+Builds docs/data/portfolio.json and docs/data/history.json from the CSV data files.
 
 Realized gains for exchange-traded and fund sells are taken directly from the
 broker's own computed result (data/transactions.csv: realized_gain_nok) rather than
@@ -18,7 +18,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
-SITE_DATA_DIR = ROOT / "site" / "data"
+SITE_DATA_DIR = ROOT / "docs" / "data"
 
 BSU_DEDUCTION_RATE_PCT = 10
 BSU_MAX_DEPOSIT_NOK = 27_500
@@ -251,8 +251,8 @@ def append_history(total_value_nok):
 
 
 def sync_static_data():
-    """Copy grades.csv and experience.md into site/data so GitHub Pages can serve
-    them regardless of whether the Pages source is set to /site or the repo root."""
+    """Copy grades.csv and experience.md into docs/data so GitHub Pages can serve
+    them regardless of whether the Pages source is set to /docs or the repo root."""
     for name in ("grades.csv", "experience.md"):
         shutil.copyfile(DATA_DIR / name, SITE_DATA_DIR / name)
 
