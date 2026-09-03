@@ -21,12 +21,12 @@
 
 <main>
   <h1>Portfolio</h1>
-  <p class="subtitle">Live tracking of personal investments, updated automatically on weekdays after market close. All figures in NOK unless noted.</p>
+  <p class="subtitle">Live tracking of personal investments, updated automatically on weekdays after market close. Holdings are shown as a share of the invested portfolio and by return only — position sizes and portfolio value are not published.</p>
 
   <div id="summary-row" class="summary-row"></div>
 
   <div class="chart-wrap">
-    <h2 style="margin-top:0; border:none; padding:0;">Value over time</h2>
+    <h2 style="margin-top:0; border:none; padding:0;">Unrealized return over time</h2>
     <canvas id="value-chart"></canvas>
   </div>
 
@@ -39,16 +39,14 @@
             <tr>
               <th>Holding</th>
               <th>Account</th>
-              <th class="num">Qty</th>
-              <th class="num">Cost basis</th>
-              <th class="num">Market value</th>
-              <th class="num">Unrealized</th>
+              <th class="num">% of portfolio</th>
+              <th class="num">Return</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
-      <p class="section-note">Manually-priced holdings are flagged <span class="badge">manual</span> and use the most recently known value rather than a live quote.</p>
+      <p class="section-note">Manually-updated holdings are flagged <span class="badge">manually updated</span> and use the most recently known price rather than a live quote.</p>
     </div>
     <div class="chart-wrap" style="margin-bottom:0;">
       <h2 style="margin-top:0; border:none; padding:0;">Allocation</h2>
@@ -72,7 +70,7 @@
   </div>
   <div id="bsu-note" class="bsu-note" style="display:none;"></div>
 
-  <h2>Realized gains to date</h2>
+  <h2>Realized return to date</h2>
   <div class="summary-row" id="realized-row"></div>
 </main>
 

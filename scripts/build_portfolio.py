@@ -1,10 +1,20 @@
 """
 Builds docs/data/portfolio.json and docs/data/history.json from the CSV data files.
 
+Privacy design: this repo and site are public. No absolute NOK figure for any
+investment holding (market value, cost basis, quantity) is ever written to a
+committed file or the JSON the frontend fetches -- only relative figures (% of
+the holdings portfolio, % return) are exposed, computed here and then the
+underlying absolute numbers are discarded before writing output. Cash/savings
+account balances are shown in NOK (a separate, non-investment bucket), but nothing
+ties them back to the investment portfolio's absolute size, so the total can't be
+reconstructed from what's published.
+
 Realized gains for exchange-traded and fund sells are taken directly from the
 broker's own computed result (data/transactions.csv: realized_gain_nok) rather than
 re-derived here. FIFO is used only to track which lots of each holding are still
-open, so unrealized gain / cost basis on current positions is accurate.
+open (for unrealized return) and how much cost basis was retired by each sale
+(for realized return), never to re-derive the realized gain itself.
 """
 import csv
 import json
@@ -35,17 +45,21 @@ def load_transactions(path):
 
 def fifo_open_positions(transactions):
     """Group by (account, ticker); FIFO-consume SELL quantity against BUY lots.
-    Returns dict keyed by (account, ticker) -> {qty, cost_nok, name, is_fund, isin,
-    native_currency, last_native_price, last_date}, and total realized gain NOK."""
+    Returns (open_positions, realized_total_nok, realized_by_ticker_nok,
+    realized_cost_by_ticker_nok) -- the last two keyed by ticker, used only to
+    compute *relative* realized-return percentages, never displayed in NOK."""
     lots = defaultdict(list)  # key -> [[qty, cost_nok], ...]
     meta = {}
+    name_by_ticker = {}
     realized_total = 0.0
-    realized_by_ticker = defaultdict(float)
+    realized_gain_by_ticker = defaultdict(float)
+    realized_cost_by_ticker = defaultdict(float)
 
     for row in sorted(transactions, key=lambda r: r["date"]):
         key = (row["account"], row["ticker"])
         qty = float(row["quantity"])
         amount = float(row["amount_nok"])
+        name_by_ticker[row["ticker"]] = row["name"]
         meta[key] = {
             "name": row["name"],
             "is_fund": row["is_fund"] == "True",
@@ -62,15 +76,17 @@ def fifo_open_positions(transactions):
                 lot_qty, lot_cost = lots[key][0]
                 take = min(lot_qty, remaining)
                 frac = take / lot_qty if lot_qty else 0
+                cost_removed = lot_cost * frac
                 lots[key][0][0] -= take
-                lots[key][0][1] -= lot_cost * frac
+                lots[key][0][1] -= cost_removed
                 remaining -= take
+                realized_cost_by_ticker[row["ticker"]] += cost_removed
                 if lots[key][0][0] <= 1e-6:
                     lots[key].pop(0)
             if row["realized_gain_nok"]:
                 gain = float(row["realized_gain_nok"])
                 realized_total += gain
-                realized_by_ticker[row["ticker"]] += gain
+                realized_gain_by_ticker[row["ticker"]] += gain
 
     positions = {}
     for key, lotlist in lots.items():
@@ -79,7 +95,8 @@ def fifo_open_positions(transactions):
         if qty > 1e-4:
             positions[key] = {**meta[key], "quantity": qty, "cost_basis_nok": cost}
 
-    return positions, realized_total, dict(realized_by_ticker)
+    return (positions, realized_total, dict(realized_gain_by_ticker),
+            dict(realized_cost_by_ticker), name_by_ticker)
 
 
 def fetch_fx_rate(base, quote="NOK"):
@@ -118,7 +135,9 @@ def fetch_live_price(ticker):
     return None, None
 
 
-def price_position(key, pos):
+def price_position_raw(key, pos):
+    """Internal only: computes absolute NOK figures needed to derive percentages.
+    Never written to disk as-is -- see build_public_holding()."""
     account, ticker = key
     quantity = pos["quantity"]
     cost_basis_nok = pos["cost_basis_nok"]
@@ -127,14 +146,11 @@ def price_position(key, pos):
     if not pos["is_fund"]:
         price, currency = fetch_live_price(ticker)
     price_source = "live"
-    price_as_of = datetime.now(timezone.utc).isoformat()
 
     if price is None:
-        # fund, or live fetch failed: fall back to last known transaction price
         price = pos["last_native_price"]
         currency = pos["native_currency"]
         price_source = "manual_fallback" if pos["is_fund"] else "last_known_fallback"
-        price_as_of = pos["last_date"]
         if price is None:
             price, currency = 0.0, "NOK"
 
@@ -143,27 +159,19 @@ def price_position(key, pos):
         fx_rate = 1.0  # last resort, avoids crashing a daily unattended run
 
     market_value_nok = price * quantity * fx_rate
-    unrealized_gain_nok = market_value_nok - cost_basis_nok
-    unrealized_gain_pct = (unrealized_gain_nok / cost_basis_nok * 100) if cost_basis_nok else 0.0
 
     return {
         "ticker": ticker,
         "name": pos["name"],
-        "isin": pos["isin"],
         "type": "fund" if pos["is_fund"] else "exchange_traded",
-        "quantity": round(quantity, 4),
-        "cost_basis_nok": round(cost_basis_nok, 2),
-        "market_value_nok": round(market_value_nok, 2),
-        "unrealized_gain_nok": round(unrealized_gain_nok, 2),
-        "unrealized_gain_pct": round(unrealized_gain_pct, 2),
-        "price_source": price_source,
-        "price_as_of": price_as_of,
         "account": account,
+        "cost_basis_nok": cost_basis_nok,
+        "market_value_nok": market_value_nok,
         "flagged_manual": pos["is_fund"] and price_source == "manual_fallback",
     }
 
 
-def load_manual_holdings(path):
+def load_manual_holdings_raw(path):
     with open(path, encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     holdings = []
@@ -171,32 +179,34 @@ def load_manual_holdings(path):
         market_value = float(row["market_value"])
         cost_basis = float(row["cost_basis"])
         currency = row["currency"]
-        price_source = "manual_fallback"
-        price_as_of = row["date"]
-
-        price, live_currency = fetch_live_price(row["ticker"])
-        if price:
-            # can't know quantity for these rows, so a live price can't be converted
-            # into a market value on its own; keep the provided market_value but note
-            # that a live quote was seen for this ticker
-            price_source = "manual_fallback"
-
+        # currency conversion for manual rows isn't attempted -- these are
+        # already-known values the owner maintains directly in NOK
         holdings.append({
             "ticker": row["ticker"],
             "name": row["name"],
-            "isin": None,
             "type": "manual",
-            "quantity": None,
-            "cost_basis_nok": round(cost_basis, 2) if currency == "NOK" else None,
-            "market_value_nok": round(market_value, 2) if currency == "NOK" else None,
-            "unrealized_gain_nok": round(market_value - cost_basis, 2) if currency == "NOK" else None,
-            "unrealized_gain_pct": round((market_value - cost_basis) / cost_basis * 100, 2) if cost_basis else 0.0,
-            "price_source": price_source,
-            "price_as_of": price_as_of,
             "account": row["account"],
+            "cost_basis_nok": cost_basis if currency == "NOK" else None,
+            "market_value_nok": market_value if currency == "NOK" else None,
             "flagged_manual": True,
         })
     return holdings
+
+
+def build_public_holding(raw, total_market_value_nok):
+    cost = raw["cost_basis_nok"]
+    value = raw["market_value_nok"]
+    pct_of_portfolio = (value / total_market_value_nok * 100) if (value and total_market_value_nok) else 0.0
+    unrealized_gain_pct = ((value - cost) / cost * 100) if cost else None
+    return {
+        "ticker": raw["ticker"],
+        "name": raw["name"],
+        "type": raw["type"],
+        "account": raw["account"],
+        "pct_of_portfolio": round(pct_of_portfolio, 2),
+        "unrealized_gain_pct": round(unrealized_gain_pct, 2) if unrealized_gain_pct is not None else None,
+        "flagged_manual": raw["flagged_manual"],
+    }
 
 
 def load_cash(path):
@@ -220,8 +230,8 @@ def compute_bsu_benefit(cash_rows):
         "estimated_deduction_nok": None,
         "note": ("Requires this year's deposit amount (contributions_this_year), not "
                  "the account balance, to compute. Lost entirely for any year the "
-                 "account holder owns residential property. Not added to market value "
-                 "— it's a tax credit, not a return."),
+                 "account holder owns residential property. Not added to portfolio "
+                 "figures — it's a tax credit, not a return."),
     }
     if result["contributions_this_year"] is not None:
         deposit = min(result["contributions_this_year"], BSU_MAX_DEPOSIT_NOK)
@@ -229,7 +239,9 @@ def compute_bsu_benefit(cash_rows):
     return result
 
 
-def append_history(total_value_nok):
+def append_history(unrealized_return_pct):
+    """Tracks the portfolio's blended unrealized return (%) over time -- never an
+    absolute value, so the series can't be used to infer portfolio size."""
     history_csv = DATA_DIR / "history.csv"
     today = datetime.now(timezone.utc).date().isoformat()
 
@@ -238,11 +250,11 @@ def append_history(total_value_nok):
         with open(history_csv, encoding="utf-8") as f:
             rows = list(csv.DictReader(f))
     rows = [r for r in rows if r["date"] != today]
-    rows.append({"date": today, "total_value_nok": round(total_value_nok, 2)})
+    rows.append({"date": today, "unrealized_return_pct": round(unrealized_return_pct, 2)})
     rows.sort(key=lambda r: r["date"])
 
     with open(history_csv, "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["date", "total_value_nok"])
+        w = csv.DictWriter(f, fieldnames=["date", "unrealized_return_pct"])
         w.writeheader()
         w.writerows(rows)
 
@@ -262,11 +274,24 @@ def main():
     sync_static_data()
 
     transactions = load_transactions(DATA_DIR / "transactions.csv")
-    positions, realized_total, realized_by_ticker = fifo_open_positions(transactions)
+    positions, realized_total, realized_gain_by_ticker, realized_cost_by_ticker, name_by_ticker = \
+        fifo_open_positions(transactions)
 
-    holdings = [price_position(key, pos) for key, pos in positions.items()]
-    holdings.extend(load_manual_holdings(DATA_DIR / "holdings_manual.csv"))
-    holdings.sort(key=lambda h: h["market_value_nok"] or 0, reverse=True)
+    raw_holdings = [price_position_raw(key, pos) for key, pos in positions.items()]
+    raw_holdings.extend(load_manual_holdings_raw(DATA_DIR / "holdings_manual.csv"))
+
+    total_market_value_nok = sum(h["market_value_nok"] or 0 for h in raw_holdings)
+    total_cost_basis_nok = sum(h["cost_basis_nok"] or 0 for h in raw_holdings if h["cost_basis_nok"])
+    total_unrealized_gain_nok = sum(
+        (h["market_value_nok"] or 0) - (h["cost_basis_nok"] or 0)
+        for h in raw_holdings if h["cost_basis_nok"]
+    )
+    blended_unrealized_return_pct = (
+        total_unrealized_gain_nok / total_cost_basis_nok * 100 if total_cost_basis_nok else 0.0
+    )
+
+    holdings = [build_public_holding(h, total_market_value_nok) for h in raw_holdings]
+    holdings.sort(key=lambda h: h["pct_of_portfolio"], reverse=True)
 
     cash_rows = load_cash(DATA_DIR / "cash.csv")
     cash_accounts = [{
@@ -280,33 +305,40 @@ def main():
 
     bsu_benefit = compute_bsu_benefit(cash_rows)
 
-    market_value_total = sum(h["market_value_nok"] or 0 for h in holdings)
-    cash_total = sum(c["balance_nok"] or 0 for c in cash_accounts)
-    total_value = market_value_total + cash_total
+    total_realized_cost = sum(realized_cost_by_ticker.values())
+    blended_realized_return_pct = (
+        realized_total / total_realized_cost * 100 if total_realized_cost else None
+    )
+    realized_by_ticker = []
+    for ticker, cost in sorted(realized_cost_by_ticker.items(),
+                                key=lambda kv: realized_gain_by_ticker.get(kv[0], 0) / kv[1] if kv[1] else 0,
+                                reverse=True):
+        gain = realized_gain_by_ticker.get(ticker, 0)
+        if cost:
+            realized_by_ticker.append({
+                "ticker": ticker,
+                "name": name_by_ticker.get(ticker, ticker),
+                "realized_return_pct": round(gain / cost * 100, 2),
+            })
 
     portfolio = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "currency": "NOK",
         "holdings": holdings,
         "cash_accounts": cash_accounts,
         "bsu_tax_benefit": bsu_benefit,
         "realized_gains": {
-            "total_nok": round(realized_total, 2),
-            "by_ticker": [{"ticker": t, "realized_gain_nok": round(g, 2)}
-                          for t, g in sorted(realized_by_ticker.items(), key=lambda x: -x[1])],
+            "blended_return_pct": round(blended_realized_return_pct, 2) if blended_realized_return_pct is not None else None,
+            "by_ticker": realized_by_ticker,
         },
-        "totals": {
-            "market_value_nok": round(market_value_total, 2),
-            "cash_nok": round(cash_total, 2),
-            "total_portfolio_value_nok": round(total_value, 2),
-        },
+        "blended_unrealized_return_pct": round(blended_unrealized_return_pct, 2),
     }
 
     with open(SITE_DATA_DIR / "portfolio.json", "w", encoding="utf-8") as f:
         json.dump(portfolio, f, indent=2)
 
-    append_history(total_value)
-    print(f"wrote portfolio.json: {len(holdings)} holdings, total value {total_value:,.2f} NOK")
+    append_history(blended_unrealized_return_pct)
+    print(f"wrote portfolio.json: {len(holdings)} holdings, "
+          f"blended unrealized return {blended_unrealized_return_pct:.2f}%")
 
 
 if __name__ == "__main__":

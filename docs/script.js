@@ -72,12 +72,12 @@ async function renderPortfolioPage() {
   const portfolio = await fetchJSON("data/portfolio.json");
   const history = await fetchJSON("data/history.json");
 
-  const totals = portfolio.totals;
+  const cashTotal = portfolio.cash_accounts.reduce((s, c) => s + (c.balance_nok || 0), 0);
   document.getElementById("summary-row").innerHTML = `
-    <div class="summary-cell"><div class="label">Total portfolio value</div><div class="value">${fmtNOK(totals.total_portfolio_value_nok)}</div></div>
-    <div class="summary-cell"><div class="label">Market value (holdings)</div><div class="value">${fmtNOK(totals.market_value_nok)}</div></div>
-    <div class="summary-cell"><div class="label">Cash &amp; savings</div><div class="value">${fmtNOK(totals.cash_nok)}</div></div>
-    <div class="summary-cell"><div class="label">Realized gains to date</div><div class="value ${gainClass(portfolio.realized_gains.total_nok)}">${fmtNOK(portfolio.realized_gains.total_nok)}</div></div>
+    <div class="summary-cell"><div class="label">Holdings</div><div class="value">${portfolio.holdings.length}</div></div>
+    <div class="summary-cell"><div class="label">Blended unrealized return</div><div class="value ${gainClass(portfolio.blended_unrealized_return_pct)}">${fmtPct(portfolio.blended_unrealized_return_pct)}</div></div>
+    <div class="summary-cell"><div class="label">Blended realized return</div><div class="value ${gainClass(portfolio.realized_gains.blended_return_pct)}">${fmtPct(portfolio.realized_gains.blended_return_pct)}</div></div>
+    <div class="summary-cell"><div class="label">Cash &amp; savings</div><div class="value">${fmtNOK(cashTotal)}</div></div>
   `;
 
   new Chart(document.getElementById("value-chart"), {
@@ -85,8 +85,8 @@ async function renderPortfolioPage() {
     data: {
       labels: history.map((h) => h.date),
       datasets: [{
-        label: "Total value (NOK)",
-        data: history.map((h) => h.total_value_nok),
+        label: "Blended unrealized return",
+        data: history.map((h) => h.unrealized_return_pct),
         borderColor: "#1f4d3f",
         backgroundColor: "rgba(31,77,63,0.08)",
         fill: true,
@@ -99,7 +99,7 @@ async function renderPortfolioPage() {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { ticks: { callback: (v) => fmtNOK(v) } },
+        y: { ticks: { callback: (v) => `${Number(v).toFixed(1)}%` } },
       },
     },
   });
@@ -107,12 +107,10 @@ async function renderPortfolioPage() {
   const tbody = document.querySelector("#holdings-table tbody");
   tbody.innerHTML = portfolio.holdings.map((h) => `
     <tr>
-      <td>${escapeHtml(h.name)}${h.flagged_manual ? '<span class="badge">manual</span>' : ""}</td>
+      <td>${escapeHtml(h.name)}${h.flagged_manual ? '<span class="badge">manually updated</span>' : ""}</td>
       <td>${escapeHtml(h.account)}</td>
-      <td class="num">${h.quantity ?? "—"}</td>
-      <td class="num">${fmtNOK(h.cost_basis_nok)}</td>
-      <td class="num">${fmtNOK(h.market_value_nok)}</td>
-      <td class="num ${gainClass(h.unrealized_gain_nok)}">${fmtNOK(h.unrealized_gain_nok)} (${fmtPct(h.unrealized_gain_pct)})</td>
+      <td class="num">${h.pct_of_portfolio.toFixed(1)}%</td>
+      <td class="num ${gainClass(h.unrealized_gain_pct)}">${fmtPct(h.unrealized_gain_pct)}</td>
     </tr>
   `).join("");
 
@@ -122,7 +120,7 @@ async function renderPortfolioPage() {
     data: {
       labels: portfolio.holdings.map((h) => h.name),
       datasets: [{
-        data: portfolio.holdings.map((h) => h.market_value_nok || 0),
+        data: portfolio.holdings.map((h) => h.pct_of_portfolio || 0),
         backgroundColor: portfolio.holdings.map((_, i) => paletteBase[i % paletteBase.length]),
         borderColor: "#faf9f6",
         borderWidth: 2,
@@ -130,7 +128,10 @@ async function renderPortfolioPage() {
     },
     options: {
       responsive: true,
-      plugins: { legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } } },
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed.toFixed(1)}%` } },
+      },
     },
   });
 
@@ -151,15 +152,15 @@ async function renderPortfolioPage() {
       : `Deduction not shown — requires this year's deposit amount, not the account balance.`;
     document.getElementById("bsu-note").style.display = "block";
     document.getElementById("bsu-note").innerHTML = `
-      <strong>BSU tax benefit (informational — not included in totals above)</strong><br>
+      <strong>BSU tax benefit (informational — not included above)</strong><br>
       ${deductionLine}<br>${escapeHtml(bsu.note)}
     `;
   }
 
   document.getElementById("realized-row").innerHTML = portfolio.realized_gains.by_ticker.map((r) => `
     <div class="summary-cell">
-      <div class="label">${escapeHtml(r.ticker)}</div>
-      <div class="value ${gainClass(r.realized_gain_nok)}" style="font-size:1.15rem;">${fmtNOK(r.realized_gain_nok)}</div>
+      <div class="label">${escapeHtml(r.name)}</div>
+      <div class="value ${gainClass(r.realized_return_pct)}" style="font-size:1.15rem;">${fmtPct(r.realized_return_pct)}</div>
     </div>
   `).join("") || '<div class="summary-cell"><div class="label">No realized sales yet</div></div>';
 }
