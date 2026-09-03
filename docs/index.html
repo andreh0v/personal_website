@@ -21,7 +21,24 @@
 
 <main>
   <h1>Portfolio</h1>
-  <p class="subtitle">Live tracking of personal investments, updated automatically on weekdays after market close. Holdings are shown as a share of the invested portfolio and by return only — position sizes and portfolio value are not published.</p>
+  <p class="subtitle">Live tracking of personal investments, updated automatically on weekdays after market close. Everything below is shown as a share of the whole and by return only — no balances or portfolio value are published.</p>
+
+  <div class="chart-grid">
+    <div class="chart-wrap" style="margin-bottom:0;">
+      <h2 style="margin-top:0; border:none; padding:0;">Portfolio composition</h2>
+      <canvas id="composition-chart"></canvas>
+    </div>
+    <div>
+      <h2>Composition</h2>
+      <div class="table-scroll">
+        <table id="composition-table">
+          <thead><tr><th>Bucket</th><th class="num">% of total</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="section-note" id="composition-note"></p>
+    </div>
+  </div>
 
   <div id="summary-row" class="summary-row"></div>
 
@@ -60,7 +77,6 @@
       <thead>
         <tr>
           <th>Account</th>
-          <th class="num">Balance</th>
           <th class="num">Interest rate</th>
           <th>Tax-deductible</th>
         </tr>

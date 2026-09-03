@@ -1,11 +1,6 @@
 // Shared helpers + per-page renderers. No build step: fetches JSON/CSV/Markdown at
 // runtime and renders client-side.
 
-function fmtNOK(n) {
-  if (n === null || n === undefined) return "—";
-  return new Intl.NumberFormat("nb-NO", { maximumFractionDigits: 0 }).format(n) + " kr";
-}
-
 function fmtPct(n) {
   if (n === null || n === undefined) return "—";
   const sign = n > 0 ? "+" : "";
@@ -72,13 +67,42 @@ async function renderPortfolioPage() {
   const portfolio = await fetchJSON("data/portfolio.json");
   const history = await fetchJSON("data/history.json");
 
-  const cashTotal = portfolio.cash_accounts.reduce((s, c) => s + (c.balance_nok || 0), 0);
   document.getElementById("summary-row").innerHTML = `
     <div class="summary-cell"><div class="label">Holdings</div><div class="value">${portfolio.holdings.length}</div></div>
     <div class="summary-cell"><div class="label">Blended unrealized return</div><div class="value ${gainClass(portfolio.blended_unrealized_return_pct)}">${fmtPct(portfolio.blended_unrealized_return_pct)}</div></div>
     <div class="summary-cell"><div class="label">Blended realized return</div><div class="value ${gainClass(portfolio.realized_gains.blended_return_pct)}">${fmtPct(portfolio.realized_gains.blended_return_pct)}</div></div>
-    <div class="summary-cell"><div class="label">Cash &amp; savings</div><div class="value">${fmtNOK(cashTotal)}</div></div>
   `;
+
+  const compPalette = ["#1f4d3f", "#7f9c8f", "#a3702c", "#4a5164", "#c2b280", "#8a2e2e", "#5b7a99", "#9fae7e", "#c9a66b", "#6b8e7f"];
+  new Chart(document.getElementById("composition-chart"), {
+    type: "doughnut",
+    data: {
+      labels: portfolio.composition.map((c) => c.label),
+      datasets: [{
+        data: portfolio.composition.map((c) => c.pct),
+        backgroundColor: portfolio.composition.map((_, i) => compPalette[i % compPalette.length]),
+        borderColor: "#faf9f6",
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.parsed.toFixed(1)}%` } },
+      },
+    },
+  });
+
+  document.querySelector("#composition-table tbody").innerHTML = portfolio.composition.map((c) => `
+    <tr>
+      <td>${escapeHtml(c.label)}</td>
+      <td class="num">${c.pct.toFixed(1)}%</td>
+    </tr>
+  `).join("");
+  document.getElementById("composition-note").textContent =
+    "Includes all holdings and cash/savings accounts. Small holdings are grouped once below "
+    + "a threshold rather than listed individually.";
 
   new Chart(document.getElementById("value-chart"), {
     type: "line",
@@ -139,7 +163,6 @@ async function renderPortfolioPage() {
   cashTbody.innerHTML = portfolio.cash_accounts.map((c) => `
     <tr>
       <td>${escapeHtml(c.account)}${c.is_bsu ? '<span class="badge">BSU</span>' : ""}</td>
-      <td class="num">${fmtNOK(c.balance_nok)}</td>
       <td class="num">${c.interest_rate_pct}%</td>
       <td>${c.tax_deductible ? "Yes" : "No"}</td>
     </tr>
@@ -147,13 +170,9 @@ async function renderPortfolioPage() {
 
   const bsu = portfolio.bsu_tax_benefit;
   if (bsu && bsu.applicable) {
-    const deductionLine = bsu.estimated_deduction_nok !== null
-      ? `Estimated 2026 deduction: <strong>${fmtNOK(bsu.estimated_deduction_nok)}</strong> (10% of ${fmtNOK(bsu.contributions_this_year)} deposited this year).`
-      : `Deduction not shown — requires this year's deposit amount, not the account balance.`;
     document.getElementById("bsu-note").style.display = "block";
     document.getElementById("bsu-note").innerHTML = `
-      <strong>BSU tax benefit (informational — not included above)</strong><br>
-      ${deductionLine}<br>${escapeHtml(bsu.note)}
+      <strong>BSU tax benefit</strong><br>${escapeHtml(bsu.note)}
     `;
   }
 
@@ -161,6 +180,7 @@ async function renderPortfolioPage() {
     <div class="summary-cell">
       <div class="label">${escapeHtml(r.name)}</div>
       <div class="value ${gainClass(r.realized_return_pct)}" style="font-size:1.15rem;">${fmtPct(r.realized_return_pct)}</div>
+      ${r.period_held ? `<div class="section-note" style="margin:4px 0 0;">${escapeHtml(r.period_held)}</div>` : ""}
     </div>
   `).join("") || '<div class="summary-cell"><div class="label">No realized sales yet</div></div>';
 }

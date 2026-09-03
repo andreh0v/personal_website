@@ -21,7 +21,7 @@ import json
 import shutil
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import requests
@@ -35,7 +35,51 @@ BSU_MAX_DEPOSIT_NOK = 27_500
 BSU_MAX_DEDUCTION_NOK = 2_750
 BSU_MAX_BALANCE_NOK = 300_000
 
+# Holdings never shown or counted, at the owner's request.
+EXCLUDED_TICKERS = {"ASML.AS", "ASML"}
+
+# Below this share of the (investment-only) portfolio, a holding is folded into a
+# group rather than listed by name. Funds group into a named theme; everything
+# else groups into a generic "other holdings" bucket.
+GROUPING_THRESHOLD_PCT = 2.0
+
+FUND_CATEGORY = {
+    "NO0013023242": "Dividend funds",   # Fondsfinans Norden Utbytte B
+    "NO0010860349": "Dividend funds",   # Fondsfinans Utbytte A
+    "NO0013023234": "Dividend funds",   # Fondsfinans Utbytte B
+    "NO0012948852": "Dividend funds",   # Heimdal Utbytte N
+    "NO0012445388": "Index funds",      # KLP AksjeEuropa Indeks N
+    "NO0012445404": "Index funds",      # KLP AksjeGlobal Indeks N
+    "NO0010776040": "Index funds",      # KLP AksjeGlobal Indeks P
+    "IE00BMTD2N07": "Index funds",      # Nordnet Europa Indeks NOK
+    "IE00BMTD2J60": "Index funds",      # Nordnet Global Indeks NOK
+    "IE00BNNLSM87": "Index funds",      # Nordnet Teknologi Indeks NOK
+    "IE000480NS87": "Index funds",      # Nordnet Global Indeks 125 NOK
+    "NO0010710452": "High yield funds", # Fondsfinans High Yield A
+    "NO0013168773": "High yield funds", # Fondsfinans High Yield B
+    "NO0010782519": "High yield funds", # Heimdal Høyrente A
+    "NO0012948878": "High yield funds", # Heimdal Høyrente N
+    "NO0010279029": "High yield funds", # Landkreditt Høyrente A
+    "NO0013479428": "High yield funds", # Landkreditt Høyrente N
+    "NO0010876469": "High yield funds", # Storebrand Nordic High Yield N
+}
+
 _fx_cache = {}
+
+
+def format_period(start_iso, end_iso):
+    """Human-friendly holding period between two ISO dates, e.g. '1 yr 4 mo'."""
+    start = date.fromisoformat(start_iso)
+    end = date.fromisoformat(end_iso)
+    months = (end.year - start.year) * 12 + (end.month - start.month)
+    months = max(months, 0)
+    years, rem_months = divmod(months, 12)
+    parts = []
+    if years:
+        parts.append(f"{years} yr")
+    if rem_months or not years:
+        parts.append(f"{rem_months} mo")
+    return "Held " + " ".join(parts)
 
 
 def load_transactions(path):
@@ -45,12 +89,16 @@ def load_transactions(path):
 
 def fifo_open_positions(transactions):
     """Group by (account, ticker); FIFO-consume SELL quantity against BUY lots.
-    Returns (open_positions, realized_total_nok, realized_by_ticker_nok,
-    realized_cost_by_ticker_nok) -- the last two keyed by ticker, used only to
-    compute *relative* realized-return percentages, never displayed in NOK."""
+    Returns (open_positions, realized_total_nok, realized_gain_by_ticker_nok,
+    realized_cost_by_ticker_nok, name_by_ticker, is_fund_by_ticker,
+    first_buy_by_ticker, last_sell_by_ticker) -- the NOK dicts are used only to
+    compute *relative* realized-return percentages, never displayed as NOK."""
     lots = defaultdict(list)  # key -> [[qty, cost_nok], ...]
     meta = {}
     name_by_ticker = {}
+    is_fund_by_ticker = {}
+    first_buy_by_ticker = {}
+    last_sell_by_ticker = {}
     realized_total = 0.0
     realized_gain_by_ticker = defaultdict(float)
     realized_cost_by_ticker = defaultdict(float)
@@ -60,6 +108,11 @@ def fifo_open_positions(transactions):
         qty = float(row["quantity"])
         amount = float(row["amount_nok"])
         name_by_ticker[row["ticker"]] = row["name"]
+        is_fund_by_ticker[row["ticker"]] = row["is_fund"] == "True"
+        if row["type"] == "BUY":
+            first_buy_by_ticker.setdefault(row["ticker"], row["date"])
+        else:
+            last_sell_by_ticker[row["ticker"]] = row["date"]
         meta[key] = {
             "name": row["name"],
             "is_fund": row["is_fund"] == "True",
@@ -96,7 +149,8 @@ def fifo_open_positions(transactions):
             positions[key] = {**meta[key], "quantity": qty, "cost_basis_nok": cost}
 
     return (positions, realized_total, dict(realized_gain_by_ticker),
-            dict(realized_cost_by_ticker), name_by_ticker)
+            dict(realized_cost_by_ticker), name_by_ticker, is_fund_by_ticker,
+            first_buy_by_ticker, last_sell_by_ticker)
 
 
 def fetch_fx_rate(base, quote="NOK"):
@@ -215,28 +269,24 @@ def load_cash(path):
 
 
 def compute_bsu_benefit(cash_rows):
+    """General rule explanation only -- no personal deposit or deduction figures
+    (those would reveal an absolute NOK amount) are published."""
     bsu = next((r for r in cash_rows if r["account"] == "BSU"), None)
     if not bsu:
         return {"applicable": False}
 
-    contributions = bsu.get("contributions_this_year")
-    result = {
+    return {
         "applicable": True,
-        "contributions_this_year": float(contributions) if contributions else None,
         "deduction_rate_pct": BSU_DEDUCTION_RATE_PCT,
         "max_deposit_nok": BSU_MAX_DEPOSIT_NOK,
         "max_deduction_nok": BSU_MAX_DEDUCTION_NOK,
         "max_balance_nok": BSU_MAX_BALANCE_NOK,
-        "estimated_deduction_nok": None,
-        "note": ("Requires this year's deposit amount (contributions_this_year), not "
-                 "the account balance, to compute. Lost entirely for any year the "
-                 "account holder owns residential property. Not added to portfolio "
-                 "figures — it's a tax credit, not a return."),
+        "note": ("A 10% tax deduction on the amount deposited in the calendar year "
+                 "(not the account balance), capped at 27,500 NOK deposited per year "
+                 "(2,750 NOK deduction) and 300,000 NOK total balance. Lost entirely "
+                 "for any year the account holder owns residential property. Not a "
+                 "return on the account — it's a tax credit."),
     }
-    if result["contributions_this_year"] is not None:
-        deposit = min(result["contributions_this_year"], BSU_MAX_DEPOSIT_NOK)
-        result["estimated_deduction_nok"] = round(deposit * BSU_DEDUCTION_RATE_PCT / 100, 2)
-    return result
 
 
 def append_history(unrealized_return_pct):
@@ -269,16 +319,67 @@ def sync_static_data():
         shutil.copyfile(DATA_DIR / name, SITE_DATA_DIR / name)
 
 
+def build_composition(holdings_raw, total_market_value_nok, cash_rows):
+    """Full 'everything included' breakdown: investments (grouped below the
+    threshold, funds bucketed by theme) plus cash/BSU, all as % of one grand
+    total (investments + cash). No absolute figure is ever computed into this
+    beyond the percentages themselves."""
+    cash_total_nok = sum(float(r["balance"]) for r in cash_rows if r["currency"] == "NOK")
+    grand_total_nok = total_market_value_nok + cash_total_nok
+    if not grand_total_nok:
+        return []
+
+    individual, grouped_fund, grouped_other = [], defaultdict(lambda: [0.0, []]), [0.0, []]
+    for h in holdings_raw:
+        value = h["market_value_nok"] or 0
+        pct = value / grand_total_nok * 100
+        category = FUND_CATEGORY.get(h["ticker"])
+        # use the investment-only threshold for the grouping decision, matching
+        # what a reader would expect "under 2% of the portfolio" to mean
+        pct_of_investments = (value / total_market_value_nok * 100) if total_market_value_nok else 0
+        if pct_of_investments >= GROUPING_THRESHOLD_PCT:
+            individual.append({"label": h["name"], "pct": round(pct, 2), "kind": h["type"]})
+        elif category:
+            grouped_fund[category][0] += pct
+            grouped_fund[category][1].append(h["name"])
+        else:
+            grouped_other[0] += pct
+            grouped_other[1].append(h["name"])
+
+    composition = sorted(individual, key=lambda h: h["pct"], reverse=True)
+    for category, (pct, members) in grouped_fund.items():
+        composition.append({
+            "label": f"{category} (each under {GROUPING_THRESHOLD_PCT:g}%)",
+            "pct": round(pct, 2), "kind": "fund_group", "members": sorted(members),
+        })
+    if grouped_other[1]:
+        composition.append({
+            "label": f"Other holdings (each under {GROUPING_THRESHOLD_PCT:g}%)",
+            "pct": round(grouped_other[0], 2), "kind": "other_group",
+            "members": sorted(grouped_other[1]),
+        })
+    for r in cash_rows:
+        if r["currency"] != "NOK":
+            continue
+        pct = float(r["balance"]) / grand_total_nok * 100
+        composition.append({"label": r["account"], "pct": round(pct, 2), "kind": "cash"})
+
+    composition.sort(key=lambda c: c["pct"], reverse=True)
+    return composition
+
+
 def main():
     SITE_DATA_DIR.mkdir(parents=True, exist_ok=True)
     sync_static_data()
 
     transactions = load_transactions(DATA_DIR / "transactions.csv")
-    positions, realized_total, realized_gain_by_ticker, realized_cost_by_ticker, name_by_ticker = \
+    (positions, realized_total, realized_gain_by_ticker, realized_cost_by_ticker,
+     name_by_ticker, is_fund_by_ticker, first_buy_by_ticker, last_sell_by_ticker) = \
         fifo_open_positions(transactions)
 
     raw_holdings = [price_position_raw(key, pos) for key, pos in positions.items()]
     raw_holdings.extend(load_manual_holdings_raw(DATA_DIR / "holdings_manual.csv"))
+    raw_holdings = [h for h in raw_holdings if h["ticker"] not in EXCLUDED_TICKERS]
 
     total_market_value_nok = sum(h["market_value_nok"] or 0 for h in raw_holdings)
     total_cost_basis_nok = sum(h["cost_basis_nok"] or 0 for h in raw_holdings if h["cost_basis_nok"])
@@ -296,14 +397,13 @@ def main():
     cash_rows = load_cash(DATA_DIR / "cash.csv")
     cash_accounts = [{
         "account": r["account"],
-        "balance_nok": float(r["balance"]) if r["currency"] == "NOK" else None,
-        "currency": r["currency"],
         "interest_rate_pct": float(r["interest_rate_pct"]),
         "tax_deductible": r["tax_deductible"].lower() == "yes",
         "is_bsu": r["account"] == "BSU",
     } for r in cash_rows]
 
     bsu_benefit = compute_bsu_benefit(cash_rows)
+    composition = build_composition(raw_holdings, total_market_value_nok, cash_rows)
 
     total_realized_cost = sum(realized_cost_by_ticker.values())
     blended_realized_return_pct = (
@@ -313,16 +413,22 @@ def main():
     for ticker, cost in sorted(realized_cost_by_ticker.items(),
                                 key=lambda kv: realized_gain_by_ticker.get(kv[0], 0) / kv[1] if kv[1] else 0,
                                 reverse=True):
+        if ticker in EXCLUDED_TICKERS or is_fund_by_ticker.get(ticker):
+            continue
         gain = realized_gain_by_ticker.get(ticker, 0)
         if cost:
-            realized_by_ticker.append({
+            entry = {
                 "ticker": ticker,
                 "name": name_by_ticker.get(ticker, ticker),
                 "realized_return_pct": round(gain / cost * 100, 2),
-            })
+            }
+            if ticker in first_buy_by_ticker and ticker in last_sell_by_ticker:
+                entry["period_held"] = format_period(first_buy_by_ticker[ticker], last_sell_by_ticker[ticker])
+            realized_by_ticker.append(entry)
 
     portfolio = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "composition": composition,
         "holdings": holdings,
         "cash_accounts": cash_accounts,
         "bsu_tax_benefit": bsu_benefit,
