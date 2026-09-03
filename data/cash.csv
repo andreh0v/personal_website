@@ -1,0 +1,3 @@
+date,account,balance,currency,interest_rate_pct,tax_deductible
+2026-09-03,BSU,123508,NOK,6.35,yes
+2026-09-03,Kredittbanken sparekonto,85000,NOK,4.8,no

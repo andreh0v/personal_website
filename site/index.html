@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Fredrik-André Hov Bertelsen</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="inner">
+    <a class="site-title" href="index.html">Fredrik-André Hov Bertelsen<span>Economics &amp; Finance</span></a>
+    <nav class="site-nav">
+      <a href="index.html" class="active">Portfolio</a>
+      <a href="academics.html">Academics</a>
+      <a href="experience.html">Experience</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <h1>Portfolio</h1>
+  <p class="subtitle">Live tracking of personal investments, updated automatically on weekdays after market close. All figures in NOK unless noted.</p>
+
+  <div id="summary-row" class="summary-row"></div>
+
+  <div class="chart-wrap">
+    <h2 style="margin-top:0; border:none; padding:0;">Value over time</h2>
+    <canvas id="value-chart"></canvas>
+  </div>
+
+  <div class="chart-grid">
+    <div>
+      <h2>Holdings</h2>
+      <div class="table-scroll">
+        <table id="holdings-table">
+          <thead>
+            <tr>
+              <th>Holding</th>
+              <th>Account</th>
+              <th class="num">Qty</th>
+              <th class="num">Cost basis</th>
+              <th class="num">Market value</th>
+              <th class="num">Unrealized</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="section-note">Manually-priced holdings are flagged <span class="badge">manual</span> and use the most recently known value rather than a live quote.</p>
+    </div>
+    <div class="chart-wrap" style="margin-bottom:0;">
+      <h2 style="margin-top:0; border:none; padding:0;">Allocation</h2>
+      <canvas id="allocation-chart"></canvas>
+    </div>
+  </div>
+
+  <h2 class="cash-section">Cash &amp; savings</h2>
+  <div class="table-scroll">
+    <table id="cash-table">
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th class="num">Balance</th>
+          <th class="num">Interest rate</th>
+          <th>Tax-deductible</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="bsu-note" class="bsu-note" style="display:none;"></div>
+
+  <h2>Realized gains to date</h2>
+  <div class="summary-row" id="realized-row"></div>
+</main>
+
+<footer>Built with a daily GitHub Actions pipeline · data sourced from Nordnet exports and yfinance</footer>
+
+<script src="script.js"></script>
+<script>renderPortfolioPage();</script>
+</body>
+</html>
