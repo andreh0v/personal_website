@@ -1,6 +1,10 @@
 [
   {
     "date": "2026-09-03",
-    "unrealized_return_pct": 16.62
+    "unrealized_return_pct": "16.62"
+  },
+  {
+    "date": "2026-09-04",
+    "unrealized_return_pct": 16.64
   }
 ]
