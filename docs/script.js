@@ -61,9 +61,10 @@ async function fetchText(path) {
   return res.text();
 }
 
-// ---------- Home page ----------
+// ---------- Code & Projects page ----------
 
 const GITHUB_USER = "andreh0v";
+const EXCLUDED_REPOS = new Set(["OEKA201SandboxJIH"]);
 
 function iconFor(type) {
   return type === "dir" ? "📁" : "📄";
@@ -119,7 +120,7 @@ async function loadTreeLevel(container, owner, repo, path) {
   }
 }
 
-async function renderHomePage() {
+async function renderProjectsPage() {
   const container = document.getElementById("repo-list");
   let repos;
   try {
@@ -130,6 +131,8 @@ async function renderHomePage() {
     container.innerHTML = '<p class="section-note">Could not load repositories from GitHub right now.</p>';
     return;
   }
+
+  repos = repos.filter((r) => !EXCLUDED_REPOS.has(r.name));
 
   container.innerHTML = "";
   for (const repo of repos) {
