@@ -61,6 +61,109 @@ async function fetchText(path) {
   return res.text();
 }
 
+// ---------- Home page ----------
+
+const GITHUB_USER = "andreh0v";
+
+function iconFor(type) {
+  return type === "dir" ? "📁" : "📄";
+}
+
+async function fetchGitHubJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GitHub API ${res.status} for ${url}`);
+  return res.json();
+}
+
+// Lazily fetches and renders one directory level of a repo's file tree into `container`.
+async function loadTreeLevel(container, owner, repo, path) {
+  container.innerHTML = '<div class="tree-loading">Loading…</div>';
+  let entries;
+  try {
+    entries = await fetchGitHubJSON(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`
+    );
+  } catch (e) {
+    container.innerHTML = '<div class="tree-empty">Could not load contents.</div>';
+    return;
+  }
+  entries.sort((a, b) => (a.type === b.type ? a.name.localeCompare(b.name) : a.type === "dir" ? -1 : 1));
+  if (!entries.length) {
+    container.innerHTML = '<div class="tree-empty">Empty directory.</div>';
+    return;
+  }
+  container.innerHTML = "";
+  for (const entry of entries) {
+    const row = document.createElement("div");
+    row.className = `tree-entry ${entry.type === "dir" ? "dir" : "file"}`;
+    if (entry.type === "dir") {
+      row.innerHTML = `<span>${iconFor("dir")}</span><span>${escapeHtml(entry.name)}/</span>`;
+      const children = document.createElement("div");
+      children.className = "tree-children";
+      children.style.display = "none";
+      let loaded = false;
+      row.addEventListener("click", async () => {
+        const open = children.style.display !== "none";
+        children.style.display = open ? "none" : "block";
+        if (!open && !loaded) {
+          loaded = true;
+          await loadTreeLevel(children, owner, repo, entry.path);
+        }
+      });
+      container.appendChild(row);
+      container.appendChild(children);
+    } else {
+      row.innerHTML = `<span>${iconFor("file")}</span><a href="${entry.html_url}" target="_blank" rel="noopener">${escapeHtml(entry.name)}</a>`;
+      container.appendChild(row);
+    }
+  }
+}
+
+async function renderHomePage() {
+  const container = document.getElementById("repo-list");
+  let repos;
+  try {
+    repos = await fetchGitHubJSON(
+      `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&per_page=100`
+    );
+  } catch (e) {
+    container.innerHTML = '<p class="section-note">Could not load repositories from GitHub right now.</p>';
+    return;
+  }
+
+  container.innerHTML = "";
+  for (const repo of repos) {
+    const card = document.createElement("div");
+    card.className = "repo-card";
+
+    const header = document.createElement("div");
+    header.className = "repo-header";
+    header.innerHTML = `
+      <div>
+        <div class="repo-name">${escapeHtml(repo.name)}${repo.fork ? '<span class="fork-badge">fork</span>' : ""}</div>
+        ${repo.description ? `<div class="repo-desc">${escapeHtml(repo.description)}</div>` : ""}
+      </div>
+      <div class="repo-meta">${repo.language ? escapeHtml(repo.language) + " · " : ""}${repo.stargazers_count > 0 ? `★ ${repo.stargazers_count} · ` : ""}<a href="${repo.html_url}" target="_blank" rel="noopener">GitHub ↗</a></div>
+    `;
+
+    const tree = document.createElement("div");
+    tree.className = "repo-tree";
+    let loaded = false;
+    header.addEventListener("click", async (e) => {
+      if (e.target.closest("a")) return; // let the GitHub link navigate normally
+      tree.classList.toggle("open");
+      if (tree.classList.contains("open") && !loaded) {
+        loaded = true;
+        await loadTreeLevel(tree, GITHUB_USER, repo.name, "");
+      }
+    });
+
+    card.appendChild(header);
+    card.appendChild(tree);
+    container.appendChild(card);
+  }
+}
+
 // ---------- Portfolio page ----------
 
 async function renderPortfolioPage() {

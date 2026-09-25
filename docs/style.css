@@ -314,3 +314,143 @@ footer {
   color: var(--ink-soft);
   font-size: 0.82rem;
 }
+
+/* Home page */
+.nav-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 32px 0 48px;
+}
+
+.nav-card {
+  display: block;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 22px 24px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.nav-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.nav-card-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.nav-card-desc {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.nav-card-arrow {
+  color: var(--accent);
+  font-size: 0.82rem;
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+/* GitHub repo explorer */
+.repo-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.repo-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  flex-wrap: wrap;
+}
+
+.repo-header:hover { background: var(--accent-soft); }
+
+.repo-name {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.repo-name .fork-badge {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1px 7px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.repo-desc {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.repo-meta {
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.repo-tree {
+  border-top: 1px solid var(--line);
+  padding: 8px 20px 16px;
+  display: none;
+}
+
+.repo-tree.open { display: block; }
+
+.tree-node { margin: 0; }
+
+.tree-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.tree-entry:hover { background: var(--accent-soft); }
+
+.tree-entry.file { cursor: default; }
+.tree-entry.file:hover { background: none; }
+
+.tree-entry a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.tree-entry a:hover { text-decoration: underline; }
+
+.tree-children {
+  margin-left: 18px;
+  border-left: 1px solid var(--line);
+  padding-left: 10px;
+}
+
+.tree-loading, .tree-empty {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  padding: 4px;
+}
