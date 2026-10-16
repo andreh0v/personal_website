@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T08:20:35.309250+00:00",
+  "generated_at": "2026-10-16T08:28:01.826115+00:00",
   "composition": [
     {
       "label": "KLP AksjeGlobal Indeks P",
@@ -53,7 +53,7 @@
     },
     {
       "label": "ASML Holding",
-      "pct": 5.26,
+      "pct": 5.24,
       "kind": "exchange_traded"
     },
     {
@@ -63,7 +63,7 @@
     },
     {
       "label": "Alphabet A",
-      "pct": 4.04,
+      "pct": 4.05,
       "kind": "exchange_traded"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "label": "Nordnet Global Indeks 125 NOK",
-      "pct": 2.51,
+      "pct": 2.52,
       "kind": "fund"
     },
     {
@@ -159,8 +159,8 @@
       "name": "ASML Holding",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 6.51,
-      "unrealized_gain_pct": 106.79,
+      "pct_of_portfolio": 6.48,
+      "unrealized_gain_pct": 105.9,
       "as_of": null
     },
     {
@@ -168,7 +168,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 1.45,
-      "unrealized_gain_pct": -9.34,
+      "unrealized_gain_pct": -9.12,
       "as_of": null
     },
     {
@@ -176,7 +176,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 1.43,
-      "unrealized_gain_pct": -9.09,
+      "unrealized_gain_pct": -9.26,
       "as_of": null
     },
     {
@@ -184,7 +184,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 1.29,
-      "unrealized_gain_pct": 1.29,
+      "unrealized_gain_pct": 1.42,
       "as_of": null
     },
     {
@@ -192,23 +192,23 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 1.26,
-      "unrealized_gain_pct": 65.93,
+      "unrealized_gain_pct": 65.75,
       "as_of": null
     },
     {
       "name": "Mowi",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.93,
-      "unrealized_gain_pct": 9.7,
+      "pct_of_portfolio": 0.94,
+      "unrealized_gain_pct": 9.8,
       "as_of": null
     },
     {
       "name": "DNB Bank",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.76,
-      "unrealized_gain_pct": 7.16,
+      "pct_of_portfolio": 0.75,
+      "unrealized_gain_pct": 7.09,
       "as_of": null
     },
     {
@@ -216,7 +216,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 0.46,
-      "unrealized_gain_pct": -51.44,
+      "unrealized_gain_pct": -51.53,
       "as_of": null
     },
     {
@@ -232,7 +232,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 0.24,
-      "unrealized_gain_pct": 16.6,
+      "unrealized_gain_pct": 16.33,
       "as_of": null
     },
     {
@@ -240,7 +240,7 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 0.23,
-      "unrealized_gain_pct": 16.07,
+      "unrealized_gain_pct": 16.17,
       "as_of": null
     },
     {
@@ -263,7 +263,7 @@
       "name": "Fondsfinans Utbytte B",
       "type": "fund",
       "account": "Fondskonto",
-      "pct_of_portfolio": 3.78,
+      "pct_of_portfolio": 3.79,
       "unrealized_gain_pct": 47.47,
       "as_of": "2026-10-14"
     },
@@ -335,7 +335,7 @@
       "name": "KLP AksjeGlobal Indeks P",
       "type": "fund",
       "account": "DNB",
-      "pct_of_portfolio": 28.42,
+      "pct_of_portfolio": 28.43,
       "unrealized_gain_pct": 1.83,
       "as_of": "2026-10-16"
     }
@@ -447,5 +447,5 @@
       }
     ]
   },
-  "blended_unrealized_return_pct": 18.87
+  "blended_unrealized_return_pct": 18.83
 }

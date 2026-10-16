@@ -165,6 +165,7 @@ h2:first-of-type { margin-top: 0; }
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 24px;
+  align-items: start;
 }
 
 @media (max-width: 760px) {
