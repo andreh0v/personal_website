@@ -23,6 +23,7 @@ function mdInline(str) {
   let html = escapeHtml(str);
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
   html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*([^*\s][^*]*)\*/g, "<em>$1</em>");
   return html;
 }
 
@@ -371,6 +372,16 @@ function parseExperienceMarkdown(md) {
     if (/^- /.test(line)) {
       currentItem = { header: line.slice(2).trim(), details: [] };
       current.items.push(currentItem);
+    } else if (/^\s+- \+/.test(line)) {
+      // "- +Summary" starts a fold-down; following "> " lines are its paragraphs
+      if (currentItem) currentItem.details.push({ type: "bullet", fold: true, text: line.trim().slice(3).trim(), paragraphs: [""] });
+    } else if (/^\s+>/.test(line)) {
+      const last = currentItem && currentItem.details[currentItem.details.length - 1];
+      if (last && last.fold) {
+        const text = line.trim().replace(/^>\s?/, "");
+        if (text) last.paragraphs[last.paragraphs.length - 1] += (last.paragraphs[last.paragraphs.length - 1] ? " " : "") + text;
+        else last.paragraphs.push("");
+      }
     } else if (/^\s+- /.test(line)) {
       if (currentItem) currentItem.details.push({ type: "bullet", text: line.trim().slice(2).trim() });
     } else if (/^\s+\S/.test(line)) {
@@ -394,17 +405,19 @@ async function renderExperiencePage() {
       if (isSkills) {
         return `<div class="timeline-item" style="border:none; padding:6px 0;">${headerHtml}</div>`;
       }
-      const detailsHtml = item.details.map((d) => {
-        if (d.type === "bullet") return `<li>${mdInline(d.text)}</li>`;
-        return `<div class="meta" style="margin-top:-4px;">${mdInline(d.text)}</div>`;
-      }).join("");
+      // "**Role**, dates, place": role in the heading font, the rest as a meta line
+      const split = item.header.match(/^\*\*(.+?)\*\*,?\s*(.*)$/);
+      const roleHtml = split ? mdInline(split[1]) : headerHtml;
+      const metaLines = [...(split && split[2] ? [split[2]] : []),
+        ...item.details.filter((d) => d.type === "text").map((d) => d.text)];
       const bulletDetails = item.details.filter((d) => d.type === "bullet");
-      const textDetails = item.details.filter((d) => d.type === "text");
       return `
         <div class="timeline-item">
-          <div class="role">${headerHtml}</div>
-          ${textDetails.map((d) => `<div class="meta">${mdInline(d.text)}</div>`).join("")}
-          ${bulletDetails.length ? `<ul>${bulletDetails.map((d) => `<li>${mdInline(d.text)}</li>`).join("")}</ul>` : ""}
+          <div class="role">${roleHtml}</div>
+          ${metaLines.map((t) => `<div class="meta">${mdInline(t)}</div>`).join("")}
+          ${bulletDetails.length ? `<ul>${bulletDetails.map((d) => d.fold
+            ? `<li class="fold-item"><details class="fold"><summary>${mdInline(d.text)}</summary>${d.paragraphs.filter(Boolean).map((p) => `<p>${mdInline(p)}</p>`).join("")}</details></li>`
+            : `<li>${mdInline(d.text)}</li>`).join("")}</ul>` : ""}
         </div>
       `;
     }).join("");
@@ -421,7 +434,9 @@ async function renderExperiencePage() {
 
 async function renderReadingPage() {
   const root = document.getElementById("reading-root");
-  const books = parseCSV(await fetchText("data/reading.csv")).filter((b) => b.title);
+  const books = parseCSV(await fetchText("data/reading.csv"))
+    .map((b) => Object.fromEntries(Object.entries(b).map(([k, v]) => [k, (v || "").trim()])))
+    .filter((b) => b.title);
   if (!books.length) {
     root.innerHTML = '<p class="section-note">No books added yet.</p>';
     return;
