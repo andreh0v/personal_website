@@ -456,6 +456,6 @@ async function renderReadingPage() {
     .sort((a, b) => (b.date_finished || "").localeCompare(a.date_finished || ""));
   root.innerHTML = [
     reading.length ? `<div class="timeline-section"><h2>Currently reading</h2>${reading.map(item).join("")}</div>` : "",
-    finished.length ? `<div class="timeline-section"><h2>Finished</h2>${finished.map(item).join("")}</div>` : "",
+    finished.length ? `<div class="timeline-section"><h2>Good reads</h2>${finished.map(item).join("")}</div>` : "",
   ].join("");
 }
