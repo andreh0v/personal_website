@@ -7,9 +7,11 @@ add it back in if you want it there.)
 ## Education
 - **Norwegian School of Economics (NHH) — MSc in Economics and Business Administration, major in Economic Analysis**
   Aug 2026 – Jun 2028, Bergen, Norway. Current.
+  A two-year master's at Norway's leading business school. The Economic Analysis major builds on microeconomics, econometrics and finance theory to analyse markets, firms and policy, and my course choices focus on corporate finance, derivatives, valuation and financial econometrics.
   - Key courses: Advanced Corporate Finance, Advanced Derivatives, and Decisions, Strategy and Information
 - **Østfold University of Applied Sciences — Bachelor in Economics and Business Administration, profile in Economic Analysis**
   Aug 2023 – Jun 2026, Halden, Norway. GPA: 4.72 / 5.0.
+  A three-year bachelor's covering accounting, finance, marketing, organisation and economics. The Economic Analysis profile added finance theory, strategic financial management, industrial organization, and international economics and finance.
   - Favourite courses: International Economics, International Finance and Industrial Organization
   - Took the accounting course Regnskapsføring (regnskapsførerregelverket, regnskapsorganisering og forretningsforståelse) alongside the degree, with a grade of B.
   - Started Programming 1, but dropped it to focus on GMAT preparation.

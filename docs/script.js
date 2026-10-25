@@ -408,13 +408,17 @@ async function renderExperiencePage() {
       // "**Role**, dates, place": role in the heading font, the rest as a meta line
       const split = item.header.match(/^\*\*(.+?)\*\*,?\s*(.*)$/);
       const roleHtml = split ? mdInline(split[1]) : headerHtml;
-      const metaLines = [...(split && split[2] ? [split[2]] : []),
-        ...item.details.filter((d) => d.type === "text").map((d) => d.text)];
+      // Indented text lines: the first is the date/place line (unless the header
+      // already has one); any further lines are a description paragraph.
+      const textLines = item.details.filter((d) => d.type === "text").map((d) => d.text);
+      const metaLines = split && split[2] ? [split[2]] : textLines.slice(0, 1);
+      const descLines = split && split[2] ? textLines : textLines.slice(1);
       const bulletDetails = item.details.filter((d) => d.type === "bullet");
       return `
         <div class="timeline-item">
           <div class="role">${roleHtml}</div>
           ${metaLines.map((t) => `<div class="meta">${mdInline(t)}</div>`).join("")}
+          ${descLines.length ? `<p class="item-desc">${mdInline(descLines.join(" "))}</p>` : ""}
           ${bulletDetails.length ? `<ul>${bulletDetails.map((d) => d.fold
             ? `<li class="fold-item"><details class="fold"><summary>${mdInline(d.text)}</summary>${d.paragraphs.filter(Boolean).map((p) => `<p>${mdInline(p)}</p>`).join("")}</details></li>`
             : `<li>${mdInline(d.text)}</li>`).join("")}</ul>` : ""}

@@ -480,3 +480,8 @@ li.fold-item {
   list-style: none;
   margin-left: -1.05em;
 }
+
+.timeline-item .item-desc {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
