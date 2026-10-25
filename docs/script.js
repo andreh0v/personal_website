@@ -416,3 +416,31 @@ async function renderExperiencePage() {
     `;
   }).join("");
 }
+
+// ---------- Reading page ----------
+
+async function renderReadingPage() {
+  const root = document.getElementById("reading-root");
+  const books = parseCSV(await fetchText("data/reading.csv")).filter((b) => b.title);
+  if (!books.length) {
+    root.innerHTML = '<p class="section-note">No books added yet.</p>';
+    return;
+  }
+  const stars = (r) => {
+    const n = Math.max(0, Math.min(5, parseInt(r, 10) || 0));
+    return n ? "★".repeat(n) + "☆".repeat(5 - n) : "";
+  };
+  const item = (b) => `
+    <div class="timeline-item">
+      <div class="role">${escapeHtml(b.title)}</div>
+      <div class="meta">${escapeHtml(b.author || "")}${b.date_finished ? ` · finished ${escapeHtml(b.date_finished)}` : ""}${b.rating ? ` · ${stars(b.rating)}` : ""}</div>
+      ${b.takeaway ? `<div>${escapeHtml(b.takeaway)}</div>` : ""}
+    </div>`;
+  const reading = books.filter((b) => (b.status || "").toLowerCase() === "reading");
+  const finished = books.filter((b) => (b.status || "").toLowerCase() !== "reading")
+    .sort((a, b) => (b.date_finished || "").localeCompare(a.date_finished || ""));
+  root.innerHTML = [
+    reading.length ? `<div class="timeline-section"><h2>Currently reading</h2>${reading.map(item).join("")}</div>` : "",
+    finished.length ? `<div class="timeline-section"><h2>Finished</h2>${finished.map(item).join("")}</div>` : "",
+  ].join("");
+}
