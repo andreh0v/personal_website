@@ -23,7 +23,29 @@
 
 <main>
   <h1>Code &amp; Projects</h1>
-  <p class="subtitle">Public repositories on <a href="https://github.com/andreh0v" target="_blank" rel="noopener">github.com/andreh0v</a>, loaded live from the GitHub API. Click a repository to browse its files.</p>
+  <p class="subtitle">Selected coursework and code — finance models built in R and Python.</p>
+  <h2>Featured work</h2>
+  <div class="featured">
+    <figure class="feature-card">
+      <a href="img/eco423-black-scholes-eqnr.png" target="_blank" rel="noopener"><img src="img/eco423-black-scholes-eqnr.png" alt="Black-Scholes value of an EQNR call option against the share price, under 5-year and 2-year historical volatility, with the market price marked"></a>
+      <figcaption>
+        <div class="feature-title">Pricing an Equinor call option with Black-Scholes</div>
+        <div class="meta">ECO423 Advanced Derivatives · R</div>
+        <p>Historical volatility estimated from Yahoo Finance data feeds a Black-Scholes model of an EQNR call (strike 410, expiry 18.09.2026). The 2-year volatility window lands within 5% of the market price, against 10% for the 5-year window.</p>
+      </figcaption>
+    </figure>
+    <figure class="feature-card">
+      <a href="img/eco422-beta-vs-leverage.png" target="_blank" rel="noopener"><img src="img/eco422-beta-vs-leverage.png" alt="Equity, debt and firm beta plotted against leverage under the Merton model"></a>
+      <figcaption>
+        <div class="feature-title">Equity and debt betas as leverage rises</div>
+        <div class="meta">ECO422 Advanced Corporate Finance · R</div>
+        <p>Treating equity as a call option on firm value (the Merton model), equity beta climbs steeply as debt approaches firm value, debt beta rises from zero, and the firm's asset beta stays at 1.</p>
+      </figcaption>
+    </figure>
+  </div>
+
+  <h2>Repositories</h2>
+  <p class="section-note">Public repositories on <a href="https://github.com/andreh0v" target="_blank" rel="noopener">github.com/andreh0v</a>, loaded live from the GitHub API. Click a repository to browse its files.</p>
   <div id="repo-list"></div>
 </main>
 

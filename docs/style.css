@@ -485,3 +485,46 @@ li.fold-item {
   margin: 0 0 10px;
   font-size: 0.95rem;
 }
+
+/* Featured work (Code & Projects) */
+.featured {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.feature-card {
+  margin: 0;
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.feature-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--line);
+}
+
+.feature-card figcaption { padding: 16px 20px 18px; }
+
+.feature-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.feature-card .meta {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  margin: 2px 0 8px;
+}
+
+.feature-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
