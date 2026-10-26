@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-10-26T10:57:05.945571+00:00",
+  "generated_at": "2026-10-26T22:18:11.677544+00:00",
   "composition": [
     {
       "label": "KLP AksjeGlobal Indeks P",
-      "pct": 23.23,
+      "pct": 23.22,
       "kind": "fund"
     },
     {
       "label": "BSU",
-      "pct": 13.83,
+      "pct": 13.82,
       "kind": "cash"
     },
     {
@@ -18,7 +18,7 @@
     },
     {
       "label": "Other stocks (each under 2%)",
-      "pct": 8.99,
+      "pct": 9.02,
       "kind": "group",
       "members": [
         "Aker",
@@ -37,7 +37,7 @@
     },
     {
       "label": "Amazon.com",
-      "pct": 6.75,
+      "pct": 6.77,
       "kind": "exchange_traded"
     },
     {
@@ -53,12 +53,12 @@
     },
     {
       "label": "ASML Holding",
-      "pct": 4.96,
+      "pct": 5.02,
       "kind": "exchange_traded"
     },
     {
       "label": "Visa",
-      "pct": 4.27,
+      "pct": 4.22,
       "kind": "exchange_traded"
     },
     {
@@ -68,7 +68,7 @@
     },
     {
       "label": "Alphabet A",
-      "pct": 3.69,
+      "pct": 3.64,
       "kind": "exchange_traded"
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "label": "Microsoft",
-      "pct": 2.2,
+      "pct": 2.23,
       "kind": "exchange_traded"
     },
     {
@@ -119,56 +119,56 @@
       "name": "Amazon.com",
       "type": "exchange_traded",
       "account": "Aksje- og fondskonto",
-      "pct_of_portfolio": 8.37,
-      "unrealized_gain_pct": 6.12,
+      "pct_of_portfolio": 8.39,
+      "unrealized_gain_pct": 6.51,
       "as_of": null
     },
     {
       "name": "Visa",
       "type": "exchange_traded",
       "account": "Aksje- og fondskonto",
-      "pct_of_portfolio": 5.29,
-      "unrealized_gain_pct": 21.26,
+      "pct_of_portfolio": 5.24,
+      "unrealized_gain_pct": 20.06,
       "as_of": null
     },
     {
       "name": "Alphabet A",
       "type": "exchange_traded",
       "account": "Aksje- og fondskonto",
-      "pct_of_portfolio": 4.57,
-      "unrealized_gain_pct": 86.51,
+      "pct_of_portfolio": 4.51,
+      "unrealized_gain_pct": 84.4,
       "as_of": null
     },
     {
       "name": "Microsoft",
       "type": "exchange_traded",
       "account": "Aksje- og fondskonto",
-      "pct_of_portfolio": 2.72,
-      "unrealized_gain_pct": 25.29,
+      "pct_of_portfolio": 2.76,
+      "unrealized_gain_pct": 27.13,
       "as_of": null
     },
     {
       "name": "Mastercard",
       "type": "exchange_traded",
       "account": "Aksje- og fondskonto",
-      "pct_of_portfolio": 2.43,
-      "unrealized_gain_pct": 12.27,
+      "pct_of_portfolio": 2.38,
+      "unrealized_gain_pct": 10.37,
       "as_of": null
     },
     {
       "name": "ASML Holding",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 6.15,
-      "unrealized_gain_pct": 92.97,
+      "pct_of_portfolio": 6.22,
+      "unrealized_gain_pct": 95.15,
       "as_of": null
     },
     {
       "name": "Norbit",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 1.49,
-      "unrealized_gain_pct": -7.65,
+      "pct_of_portfolio": 1.52,
+      "unrealized_gain_pct": -6.12,
       "as_of": null
     },
     {
@@ -176,47 +176,47 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 1.49,
-      "unrealized_gain_pct": -6.5,
+      "unrealized_gain_pct": -6.59,
       "as_of": null
     },
     {
       "name": "V\u00e5r Energi",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 1.34,
-      "unrealized_gain_pct": 73.98,
+      "pct_of_portfolio": 1.36,
+      "unrealized_gain_pct": 76.32,
       "as_of": null
     },
     {
       "name": "Kongsberg Gruppen",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 1.27,
-      "unrealized_gain_pct": -1.62,
+      "pct_of_portfolio": 1.29,
+      "unrealized_gain_pct": 0.26,
       "as_of": null
     },
     {
       "name": "Mowi",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.98,
-      "unrealized_gain_pct": 13.41,
+      "pct_of_portfolio": 0.99,
+      "unrealized_gain_pct": 14.89,
       "as_of": null
     },
     {
       "name": "DNB Bank",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.79,
-      "unrealized_gain_pct": 10.98,
+      "pct_of_portfolio": 0.8,
+      "unrealized_gain_pct": 11.5,
       "as_of": null
     },
     {
       "name": "Novo Nordisk B",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.46,
-      "unrealized_gain_pct": -52.12,
+      "pct_of_portfolio": 0.45,
+      "unrealized_gain_pct": -52.43,
       "as_of": null
     },
     {
@@ -224,23 +224,23 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 0.32,
-      "unrealized_gain_pct": 54.85,
+      "unrealized_gain_pct": 54.58,
       "as_of": null
     },
     {
       "name": "Europris",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.24,
-      "unrealized_gain_pct": 15.64,
+      "pct_of_portfolio": 0.25,
+      "unrealized_gain_pct": 16.74,
       "as_of": null
     },
     {
       "name": "Nordea",
       "type": "exchange_traded",
       "account": "ASK",
-      "pct_of_portfolio": 0.22,
-      "unrealized_gain_pct": 12.18,
+      "pct_of_portfolio": 0.23,
+      "unrealized_gain_pct": 12.56,
       "as_of": null
     },
     {
@@ -248,14 +248,14 @@
       "type": "exchange_traded",
       "account": "ASK",
       "pct_of_portfolio": 0.1,
-      "unrealized_gain_pct": 12.13,
+      "unrealized_gain_pct": 13.05,
       "as_of": null
     },
     {
       "name": "Nordnet Teknologi Indeks NOK",
       "type": "fund",
       "account": "Fondskonto",
-      "pct_of_portfolio": 14.68,
+      "pct_of_portfolio": 14.67,
       "unrealized_gain_pct": 50.2,
       "as_of": "2026-10-14"
     },
@@ -303,7 +303,7 @@
       "name": "Fondsfinans High Yield B",
       "type": "fund",
       "account": "H\u00f8yrentekonto",
-      "pct_of_portfolio": 1.37,
+      "pct_of_portfolio": 1.36,
       "unrealized_gain_pct": 4.72,
       "as_of": "2026-10-14"
     },
@@ -335,7 +335,7 @@
       "name": "KLP AksjeGlobal Indeks P",
       "type": "fund",
       "account": "DNB",
-      "pct_of_portfolio": 28.79,
+      "pct_of_portfolio": 28.77,
       "unrealized_gain_pct": 1.83,
       "as_of": "2026-10-16"
     }
@@ -447,5 +447,5 @@
       }
     ]
   },
-  "blended_unrealized_return_pct": 17.33
+  "blended_unrealized_return_pct": 17.42
 }
