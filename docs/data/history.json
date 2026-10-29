@@ -161,6 +161,10 @@
   },
   {
     "date": "2026-10-28",
-    "unrealized_return_pct": 17.79
+    "unrealized_return_pct": "17.79"
+  },
+  {
+    "date": "2026-10-29",
+    "unrealized_return_pct": 17.14
   }
 ]
