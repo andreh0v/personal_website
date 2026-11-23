@@ -180,6 +180,26 @@ async function renderPortfolioPage() {
     <div class="summary-cell"><div class="label">Blended realized return</div><div class="value ${gainClass(portfolio.realized_gains.blended_return_pct)}">${fmtPct(portfolio.realized_gains.blended_return_pct)}</div></div>
   `;
 
+
+  const perf = portfolio.performance;
+  if (perf && perf.periods.length) {
+    const fmtYears = (y) => `${y} year${y === 1 ? "" : "s"}`;
+    const benchLabels = perf.periods[0].benchmarks.map((b) => b.label);
+    document.querySelector("#growth-table thead").innerHTML = `<tr><th>Period</th>
+      <th class="num">Portfolio total</th><th class="num">Portfolio CAGR</th>
+      ${benchLabels.map((l) => `<th class="num">${escapeHtml(l)} CAGR</th>`).join("")}</tr>`;
+    document.querySelector("#growth-table tbody").innerHTML = perf.periods.map((p) => `<tr>
+      <td>${fmtYears(p.years)}</td>
+      <td class="num ${gainClass(p.return_pct)}">${fmtPct(p.return_pct)}</td>
+      <td class="num ${gainClass(p.cagr_pct)}"><strong>${fmtPct(p.cagr_pct)}</strong></td>
+      ${p.benchmarks.map((b) => `<td class="num ${gainClass(b.cagr_pct)}">${fmtPct(b.cagr_pct)}</td>`).join("")}</tr>`).join("");
+    document.getElementById("growth-note").textContent =
+      `Compound annual growth rate up to ${perf.as_of.split("-").reverse().join(".")}. Portfolio figures are Nordnet's ` +
+      "time-weighted returns for the Nordnet accounts, so deposits and withdrawals don't distort them. Benchmarks are " +
+      "total-return indices over the same windows; MSCI ACWI is converted to NOK.";
+    document.getElementById("growth-section").style.display = "block";
+  }
+
   const compPalette = ["#1f4d3f", "#7f9c8f", "#a3702c", "#4a5164", "#c2b280", "#8a2e2e", "#5b7a99", "#9fae7e", "#c9a66b", "#6b8e7f"];
   new Chart(document.getElementById("composition-chart"), {
     type: "doughnut",
@@ -275,7 +295,7 @@ async function renderPortfolioPage() {
   });
 
   const cashTbody = document.querySelector("#cash-table tbody");
-  cashTbody.innerHTML = portfolio.cash_accounts.map((c) => `
+  cashTbody.innerHTML = portfolio.cash_accounts.filter((c) => c.interest_rate_pct !== null).map((c) => `
     <tr>
       <td>${escapeHtml(c.account)}${c.is_bsu ? '<span class="badge">BSU</span>' : ""}</td>
       <td class="num">${c.interest_rate_pct === null ? "—" : `${c.interest_rate_pct}%`}</td>
